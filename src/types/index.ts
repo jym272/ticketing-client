@@ -49,3 +49,8 @@ export interface QueryData extends Data {
     postTitle: string;
     comments: CommentData[];
 }
+
+export interface LoginInputs {
+    email: string;
+    password: string;
+}

@@ -26,6 +26,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# neccessary for next.js to watch for changes in a container environment through docker-compose/skaffold
 RUN npm run build
 
 ENV NODE_ENV development
