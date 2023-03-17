@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import { useEffect, useState } from 'react';
 import { Control, FieldErrors, RegisterOptions, UseFormRegister, useWatch } from 'react-hook-form';
-import { LoginInputs } from '@src/types';
+import { Credentials } from '@src/types';
 
 const InputContainer = styled.div`
     display: flex;
@@ -90,10 +90,10 @@ export const InputLoginComponent = ({
     errors,
     registerOptions
 }: {
-    name: keyof LoginInputs;
-    register: UseFormRegister<LoginInputs>;
-    control: Control<LoginInputs>;
-    errors: FieldErrors<LoginInputs>;
+    name: keyof Credentials;
+    register: UseFormRegister<Credentials>;
+    control: Control<Credentials>;
+    errors: FieldErrors<Credentials>;
     registerOptions: RegisterOptions;
 }) => {
     const value = useWatch({

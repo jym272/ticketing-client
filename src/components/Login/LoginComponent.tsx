@@ -1,11 +1,11 @@
 import styled, { css } from 'styled-components';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InputLoginComponent } from '@src/components';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { LoginInputs } from '@src/types';
+import { Credentials } from '@src/types';
 
 const Container = styled.div`
     display: flex;
@@ -250,7 +250,7 @@ const ServerError = styled.div`
     font-family: 'Ubuntu Mono', monospace;
 `;
 
-export const LoginComponent = () => {
+export const LoginComponent = ({ param }: { param: 'signin' | 'signup' }) => {
     const router = useRouter();
     const {
         register,
@@ -259,26 +259,26 @@ export const LoginComponent = () => {
         setError,
         clearErrors,
         formState: { errors }
-    } = useForm<LoginInputs>();
+    } = useForm<Credentials>();
 
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(param === 'signin');
     const [buttonTitle, setButtonTitle] = useState('Login');
-    const [isSignUp, setIsSignUp] = useState(false);
+    const [isSignUp, setIsSignUp] = useState(param === 'signup');
     const [activateFadeOut, setActivateFadeOut] = useState(false);
     const [activateFadeIn, setActivateFadeIn] = useState(false);
 
-    const onSubmit: SubmitHandler<LoginInputs> = async data => {
-        const response = await fetch('/api/users', {
+    const onSubmit: SubmitHandler<Credentials> = async data => {
+        // TODO: refactor this request logic if necessary into a custom hook
+        const signMethod = isLogin ? 'signin' : 'signup';
+        const response = await fetch(`/api/users/${signMethod}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-
-                'users-route': isLogin ? 'login' : 'signup'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         });
 
-        const result = (await response.json()) as { message?: string; token?: string };
+        const result = (await response.json()) as { message?: string };
 
         if (response.status >= 400) {
             setError('root.serverError', {
@@ -287,50 +287,39 @@ export const LoginComponent = () => {
             });
             return;
         }
-        let token: string | undefined;
-        if (isSignUp) {
-            const response = await fetch('/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'users-route': 'login'
-                },
-                body: JSON.stringify(data)
-            });
-            const result = (await response.json()) as { message?: string; token?: string };
+        await router.push('/');
+    };
 
-            if (response.status >= 400) {
-                setError('root.serverError', {
-                    type: '400',
-                    message: result.message ?? 'Something went wrong, try again later'
-                });
-                return;
-            }
-            token = result.token!;
+    useEffect(() => {
+        const changeToSignUpHandler = () => {
+            setActivateFadeOut(true);
+            setActivateFadeIn(false);
+            setButtonTitle('Sign Up');
+            setTimeout(() => {
+                setIsLogin(false);
+            }, 500);
+            setIsSignUp(true);
+            clearErrors('root.serverError');
+        };
+        const changeToLoginHandler = () => {
+            setIsLogin(true);
+            setButtonTitle('Login');
+            setTimeout(() => {
+                setIsSignUp(false);
+            }, 500);
+            setActivateFadeIn(true);
+            clearErrors('root.serverError');
+        };
+        switch (param) {
+            case 'signin':
+                changeToLoginHandler();
+                break;
+            case 'signup':
+                changeToSignUpHandler();
+                break;
         }
+    }, [clearErrors, param]);
 
-        localStorage.setItem('token', token ?? result.token!);
-        await router.push('/tasks');
-    };
-    const changeToSignUpHandler = () => {
-        setActivateFadeOut(true);
-        setActivateFadeIn(false);
-        setButtonTitle('Sign Up');
-        setTimeout(() => {
-            setIsLogin(false);
-        }, 500);
-        setIsSignUp(true);
-        clearErrors('root.serverError');
-    };
-    const changeToLoginHandler = () => {
-        setIsLogin(true);
-        setButtonTitle('Login');
-        setTimeout(() => {
-            setIsSignUp(false);
-        }, 500);
-        setActivateFadeIn(true);
-        clearErrors('root.serverError');
-    };
     return (
         <Container>
             <Header>
@@ -343,7 +332,9 @@ export const LoginComponent = () => {
                         <div className={'subtitle'}>Enter your username and password to log in</div>
                         <div className={'sign_up'}>
                             or&nbsp;
-                            <span onClick={changeToSignUpHandler}>sign up</span>
+                            <span onClick={() => router.push('/auth/signup', undefined, { shallow: true })}>
+                                sign up
+                            </span>
                         </div>
                     </LoginContainer>
                 )}
@@ -355,7 +346,7 @@ export const LoginComponent = () => {
                         <h3 className={'title'}>Create an account</h3>
                         <div className={'login'}>
                             or&nbsp;
-                            <span onClick={changeToLoginHandler}>login</span>
+                            <span onClick={() => router.push('/auth/signin', undefined, { shallow: true })}>login</span>
                         </div>
                     </SignUpContainer>
                 )}
@@ -368,7 +359,7 @@ export const LoginComponent = () => {
                     errors={errors}
                     registerOptions={{
                         pattern: {
-                            value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                            value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,14}$/,
                             message: 'Please enter a valid email address'
                         }
                     }}

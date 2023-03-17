@@ -50,7 +50,24 @@ export interface QueryData extends Data {
     comments: CommentData[];
 }
 
-export interface LoginInputs {
+export interface Credentials {
     email: string;
     password: string;
+}
+
+export interface JwtPayload {
+    [key: string]: any;
+    iss?: string | undefined;
+    sub?: string | undefined;
+    aud?: string | string[] | undefined;
+    exp?: number | undefined;
+    nbf?: number | undefined;
+    iat?: number | undefined;
+    jti?: string | undefined;
+}
+
+export interface JwtPayloadCustom extends JwtPayload {
+    permissions: {
+        authenticated: boolean;
+    };
 }
