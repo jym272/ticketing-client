@@ -3,6 +3,7 @@ import { SWRConfiguration } from 'swr';
 import { JwtPayloadCustom } from '@src/types';
 import { NewTicketComponent } from '@src/components';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 //{
 //     "permissions": {
 //         "authenticated": true
@@ -32,16 +33,16 @@ const isAuth = (fallback: SWRConfiguration['fallback']) => {
 export default function NewTicket({ fallback }: { fallback: SWRConfiguration['fallback'] }) {
     const isAuthed = isAuth(fallback);
     const router = useRouter();
-    // useEffect(() => {
-    if (!isAuthed) {
-        // router.replace('/auth/login');
-        void router.push('/');
-    }
-    // }, [router, isAuthed]);
+    useEffect(() => {
+        if (!isAuthed) {
+            void router.push('/');
+        }
+    }, [router, isAuthed]);
+
+    if (!isAuthed) return null;
 
     return (
         <div>
-            {isAuthed ? <h1>Logged</h1> : <h1>Not Logged</h1>}
             <NewTicketComponent />
         </div>
     );
