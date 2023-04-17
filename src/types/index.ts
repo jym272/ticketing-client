@@ -71,3 +71,9 @@ export interface JwtPayloadCustom extends JwtPayload {
         authenticated: boolean;
     };
 }
+
+export interface Ticket {
+    id: string;
+    title: string;
+    price: number;
+}

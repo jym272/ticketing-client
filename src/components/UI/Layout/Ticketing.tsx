@@ -10,7 +10,7 @@ const Header = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    height: 50px;
+    height: ${props => props.theme.constants.headerHeight};
     background-color: #e4e4e4;
     width: 100vw;
 `;
@@ -96,28 +96,7 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
                     )}
                 </AuthContainer>
             </Header>
-            {data?.currentUser && <div>{JSON.stringify(data.currentUser)}</div>}
             {children}
         </>
     );
 };
-
-// const signMethod = isLogin ? 'signin' : 'signup';
-// const response = await fetch(`/api/users/${signMethod}`, {
-//     method: 'POST',
-//     headers: {
-//         'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(data)
-// });
-//
-// const result = (await response.json()) as { message?: string };
-//
-// if (response.status >= 400) {
-//     setError('root.serverError', {
-//         type: '400',
-//         message: result.message ?? 'Something went wrong, try again later'
-//     });
-//     return;
-// }
-// await router.push('/');

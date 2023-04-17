@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { JwtPayloadCustom } from '@src/types';
 import { fetcher } from '@src/utils';
+import { Ticket } from '@src/types';
 
 const CardContainer = styled.div`
     display: flex;
@@ -75,6 +76,7 @@ export const NewTicketComponent = () => {
     const { data } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher, {
         revalidateOnFocus: false
     });
+    const { mutate } = useSWRConfig();
 
     useEffect(() => {
         if (data?.currentUser === null) {
@@ -107,6 +109,33 @@ export const NewTicketComponent = () => {
             });
             return;
         }
+
+        void mutate<Ticket[]>(
+            '/api/tickets',
+            // this updateFn should be async and remote, but iam superoptimistic about it
+            tickets => {
+                if (!tickets) return;
+                const newTicket = {
+                    id: 'new-ticket',
+                    title: data.title,
+                    price: data.price
+                };
+                return [newTicket, ...tickets];
+            },
+            // this fn changes the local data, then the remote data fn will be called -> updateFn
+            {
+                optimisticData: (tickets: Ticket[]) => {
+                    const newTicket = {
+                        id: 'new-ticket', // later the correct id will be set
+                        title: data.title,
+                        price: data.price
+                    };
+                    return [newTicket, ...tickets];
+                },
+                rollbackOnError: true
+            }
+        );
+
         await router.push('/');
     };
 
