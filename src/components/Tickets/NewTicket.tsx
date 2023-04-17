@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import useSWR from 'swr';
+import { JwtPayloadCustom } from '@src/types';
+import { fetcher } from '@src/utils';
 
 const CardContainer = styled.div`
     display: flex;
@@ -69,6 +72,15 @@ interface Inputs {
 
 export const NewTicketComponent = () => {
     const router = useRouter();
+    const { data } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher, {
+        revalidateOnFocus: false
+    });
+
+    useEffect(() => {
+        if (data?.currentUser === null) {
+            void router.push('/auth/signin');
+        }
+    }, [data, router]);
 
     const {
         register,
@@ -109,6 +121,7 @@ export const NewTicketComponent = () => {
                         minLength={1}
                         maxLength={255}
                         required
+                        placeholder="e.g. Concert"
                         {...register('title', { required: true })}
                     />
 

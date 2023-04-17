@@ -1,5 +1,5 @@
 import React from 'react';
-import { TicketingComponent, TicketingLayout } from '@src/components';
+import { TicketingLayout, TicketsList } from '@src/components';
 import type { SWRConfiguration } from 'swr';
 import { SWRConfig } from 'swr/_internal';
 import { getCurrentUser } from '@src/utils';
@@ -10,7 +10,8 @@ export default function Home({ fallback }: { fallback: SWRConfiguration['fallbac
     return (
         <SWRConfig value={{ fallback }}>
             <TicketingLayout>
-                <TicketingComponent />
+                {/*<TicketingComponent />*/}
+                <TicketsList />
             </TicketingLayout>
         </SWRConfig>
     );

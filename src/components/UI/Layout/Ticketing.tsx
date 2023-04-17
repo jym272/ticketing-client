@@ -44,11 +44,15 @@ const Container = styled.div`
     margin-right: 1rem;
 `;
 
+const BodyHeader = styled.div`
+    display: flex;
+`;
+
 export const TicketingLayout = ({ children }: { children: ReactNode }) => {
     // `data` will always be available as it's in `fallback` -> it's never undefined
-    const { data, mutate } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher);
-    //TODO: refactor for signing out with useSWR -> limit the auto revalidation!!, create a loading state ->
-    // block buttons, show some frontend, etc...
+    const { data, mutate } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher, {
+        revalidateOnFocus: false
+    });
 
     const signoutHandler = async () => {
         const res = await fetch('/api/users/signout', {
@@ -58,7 +62,15 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
             }
         });
         if (res.ok) {
-            await mutate({ currentUser: null });
+            await mutate(
+                { currentUser: null },
+                {
+                    revalidate: false,
+                    populateCache: () => {
+                        return { currentUser: null };
+                    }
+                }
+            );
         }
     };
 
@@ -68,21 +80,21 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
                 <Logo>
                     <Link href="/">GitTix</Link>
                 </Logo>
-                {data?.currentUser === null && (
-                    <AuthContainer>
-                        <Container>
-                            <Link href="/auth/signup">Sign Up</Link>
-                        </Container>
-                        <Container>
-                            <Link href="/auth/signin">Sign In</Link>
-                        </Container>
-                    </AuthContainer>
-                )}
-                {data?.currentUser && (
-                    <AuthContainer>
+                <BodyHeader>{data?.currentUser && <Link href="/tickets/new">Tickets</Link>}</BodyHeader>
+                <AuthContainer>
+                    {!data?.currentUser ? (
+                        <>
+                            <Container>
+                                <Link href="/auth/signup">Sign Up</Link>
+                            </Container>
+                            <Container>
+                                <Link href="/auth/signin">Sign In</Link>
+                            </Container>
+                        </>
+                    ) : (
                         <Container onClick={signoutHandler}>Sign Out</Container>
-                    </AuthContainer>
-                )}
+                    )}
+                </AuthContainer>
             </Header>
             {data?.currentUser && <div>{JSON.stringify(data.currentUser)}</div>}
             {children}

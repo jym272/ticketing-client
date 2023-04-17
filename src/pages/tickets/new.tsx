@@ -1,9 +1,10 @@
 import { getCurrentUser } from '@src/utils';
 import { SWRConfiguration } from 'swr';
 import { JwtPayloadCustom } from '@src/types';
-import { NewTicketComponent } from '@src/components';
+import { NewTicketComponent, TicketingLayout } from '@src/components';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { SWRConfig } from 'swr/_internal';
 //{
 //     "permissions": {
 //         "authenticated": true
@@ -42,9 +43,11 @@ export default function NewTicket({ fallback }: { fallback: SWRConfiguration['fa
     if (!isAuthed) return null;
 
     return (
-        <div>
-            <NewTicketComponent />
-        </div>
+        <SWRConfig value={{ fallback }}>
+            <TicketingLayout>
+                <NewTicketComponent />
+            </TicketingLayout>
+        </SWRConfig>
     );
 }
 NewTicket.getInitialProps = getCurrentUser;

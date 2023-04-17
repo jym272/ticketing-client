@@ -5,10 +5,6 @@ import { JwtPayloadCustom } from '@src/types';
 export const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export const getCurrentUser = async ({ req }: { req: NextApiRequest | undefined }) => {
-    // extract path in req.url
-    // const path = req.url.split('?')[0];
-    // console.log('req.url', req.url);
-
     const isServerSide = !!req;
     let url = '/api/users/current-user';
     const headers = {};
