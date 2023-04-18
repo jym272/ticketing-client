@@ -71,6 +71,10 @@ export interface Ticket {
     id: string;
     title: string;
     price: number;
+    orderId: number | null;
+    userId: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 //ORDER {
