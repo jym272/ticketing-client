@@ -77,3 +77,45 @@ export interface Ticket {
     title: string;
     price: number;
 }
+
+//ORDER {
+//   expiresAt: '2023-04-18T00:27:14.705Z',
+//   id: 2,
+//   userId: 1,
+//   status: 'created',
+//   version: 0,
+//   ticketId: 1,
+//   createdAt: '2023-04-18T00:12:14.706Z',
+//   updatedAt: '2023-04-18T00:12:14.706Z',
+//   ticket: {
+//     price: 1,
+//     id: 1,
+//     title: 'Gaottt',
+//     version: 3,
+//     createdAt: '2023-04-17T23:53:31.716Z',
+//     updatedAt: '2023-04-18T00:12:14.793Z'
+//   }
+// }
+
+export enum OrderStatus {
+    // When the order has been created, but the ticket it is trying to order has not been reserved
+    Created = 'created',
+    // The ticket the order is trying to reserve has already been reserved, or when the user has cancelled the order
+    // The order expires before payment TODO: it can be three different statuses
+    Cancelled = 'cancelled',
+    // The order has successfully reserved the ticket
+    AwaitingPayment = 'awaiting:payment',
+    // The order has reserved the ticket and the user has provided payment successfully
+    Complete = 'complete'
+}
+export interface Order {
+    id: string;
+    status: OrderStatus;
+    userId: string;
+    expiresAt: string;
+    ticket: {
+        id: string;
+        title: string;
+        price: number;
+    };
+}

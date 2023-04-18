@@ -1,8 +1,10 @@
 import { GetServerSideProps } from 'next';
 import { getEnvOrFail } from '@src/utils';
-import { Ticket as TicketType } from '@src/types';
+import { Order, Ticket as TicketType } from '@src/types';
 import { TicketingLayout } from '@src/components';
 import styled from 'styled-components';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const PurchaseButton = styled.button`
     background-color: #000;
@@ -19,6 +21,8 @@ const PurchaseButton = styled.button`
 `;
 
 export default function Ticket({ ticket }: { ticket: TicketType }) {
+    const router = useRouter();
+    const [error, setError] = useState<string | null>(null);
     const purchaseHandler = async () => {
         const res = await fetch('/api/orders', {
             method: 'POST',
@@ -31,10 +35,11 @@ export default function Ticket({ ticket }: { ticket: TicketType }) {
         });
 
         if (res.ok) {
-            // eslint-disable-next-line no-unused-vars
-            const order = (await res.json()) as { id: string };
-            // console.log(order);
+            const { order } = (await res.json()) as { order: Order };
+            return router.push(`/orders/${order.id}`);
         }
+        const { message } = (await res.json()) as { message: string };
+        setError(message);
     };
 
     return (
@@ -44,6 +49,7 @@ export default function Ticket({ ticket }: { ticket: TicketType }) {
                 <h4>Title: {ticket.title}</h4>
                 <h4>Price: {ticket.price}</h4>
                 <PurchaseButton onClick={purchaseHandler}>Purchase</PurchaseButton>
+                {error && <p>{error}</p>}
             </TicketingLayout>
         </div>
     );
