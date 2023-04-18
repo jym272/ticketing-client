@@ -1,4 +1,4 @@
-import StripeCheckout from 'react-stripe-checkout';
+import StripeCheckout, { Token } from 'react-stripe-checkout';
 import React, { useEffect, useState } from 'react';
 import { JwtPayloadCustom, NewOrderProps } from '@src/types';
 import { useRouter } from 'next/router';
@@ -35,6 +35,26 @@ export const NewOrder = ({
         };
     }, [currentUser, initialExpiration, router]);
 
+    const createPayment = async (token: Token) => {
+        const res = await fetch('/api/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: token.id,
+                orderId: order.id
+            })
+        });
+        if (!res.ok) {
+            // TODO: not thro an error, better message in the UI
+            throw new Error('Payment failed');
+        }
+        const result = (await res.json()) as { message?: string };
+        // eslint-disable-next-line no-console
+        console.log(result); // TODO: do a message or something
+    };
+
     if (!user) return null;
     return (
         <div>
@@ -44,10 +64,7 @@ export const NewOrder = ({
             <h4>Status: {order.status}</h4>
             <h4>Expires in: {expiration} seconds</h4>
             <StripeCheckout
-                token={token => {
-                    // eslint-disable-next-line no-console
-                    console.log('TOKEN', token);
-                }}
+                token={createPayment}
                 stripeKey={stripePublishableKey}
                 amount={order.ticket.price * 100}
                 email={user.sub}
@@ -55,36 +72,3 @@ export const NewOrder = ({
         </div>
     );
 };
-//{
-//     "id": "tok_1MyLRiFCS8gMf7cqCfxzdMXU",
-//     "object": "token",
-//     "card": {
-//         "id": "card_1MyLRhFCS8gMf7cqKomrjrgn",
-//         "object": "card",
-//         "address_city": null,
-//         "address_country": null,
-//         "address_line1": null,
-//         "address_line1_check": null,
-//         "address_line2": null,
-//         "address_state": null,
-//         "address_zip": null,
-//         "address_zip_check": null,
-//         "brand": "Visa",
-//         "country": "US",
-//         "cvc_check": "unchecked",
-//         "dynamic_last4": null,
-//         "exp_month": 2,
-//         "exp_year": 2025,
-//         "funding": "credit",
-//         "last4": "4242",
-//         "name": "a@a.com",
-//         "tokenization_method": null,
-//         "wallet": null
-//     },
-//     "client_ip": "186.22.17.71",
-//     "created": 1681850894,
-//     "email": "a@a.com",
-//     "livemode": false,
-//     "type": "card",
-//     "used": false
-// }
