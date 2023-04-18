@@ -2,9 +2,8 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import useSWR, { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr';
 import { JwtPayloadCustom } from '@src/types';
-import { fetcher } from '@src/utils';
 import { Ticket } from '@src/types';
 
 const CardContainer = styled.div`
@@ -71,18 +70,16 @@ interface Inputs {
     price: number;
 }
 
-export const NewTicketComponent = () => {
+export const NewTicketComponent = ({ currentUser }: { currentUser?: JwtPayloadCustom | null }) => {
     const router = useRouter();
-    const { data } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher, {
-        revalidateOnFocus: false
-    });
+
     const { mutate } = useSWRConfig();
 
     useEffect(() => {
-        if (data?.currentUser === null) {
+        if (currentUser === null) {
             void router.push('/auth/signin');
         }
-    }, [data, router]);
+    }, [currentUser, router]);
 
     const {
         register,

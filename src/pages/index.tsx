@@ -2,14 +2,15 @@ import React from 'react';
 import { TicketingLayout, TicketsList } from '@src/components';
 import type { SWRConfiguration } from 'swr';
 import { SWRConfig } from 'swr/_internal';
-import { getCurrentUser } from '@src/utils';
-
-// const useIngress = process.env.NEXT_PUBLIC_INGRESS_NGINX;
+import { getCurrentUser, isAuthenticated } from '@src/utils';
 
 export default function Home({ fallback }: { fallback: SWRConfiguration['fallback'] }) {
+    const { currentUser } = isAuthenticated(fallback);
+
+    //TODO: the fallback it was use to only /api/users/current-user, if is not used, the fallback is not used!
     return (
         <SWRConfig value={{ fallback }}>
-            <TicketingLayout>
+            <TicketingLayout currentUser={currentUser}>
                 {/*<TicketingComponent />*/}
                 <TicketsList />
             </TicketingLayout>

@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
-import useSWR from 'swr';
 import { JwtPayloadCustom } from '@src/types';
-import { fetcher } from '@src/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { fetcher } from '@src/utils';
+import useSWR from 'swr';
 
 const Header = styled.div`
     display: flex;
@@ -47,12 +48,18 @@ const Container = styled.div`
 const BodyHeader = styled.div`
     display: flex;
 `;
+interface TicketingLayoutProps {
+    children: ReactNode;
+    currentUser?: JwtPayloadCustom | null;
+}
 
-export const TicketingLayout = ({ children }: { children: ReactNode }) => {
-    // `data` will always be available as it's in `fallback` -> it's never undefined
+export const TicketingLayout = ({ children, currentUser }: TicketingLayoutProps) => {
+    // `data` will always be available IF it's in `fallback`
     const { data, mutate } = useSWR<{ currentUser: null | JwtPayloadCustom }>('/api/users/current-user', fetcher, {
         revalidateOnFocus: false
     });
+
+    const router = useRouter();
 
     const signoutHandler = async () => {
         const res = await fetch('/api/users/signout', {
@@ -71,8 +78,16 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
                     }
                 }
             );
+            void router.push('/');
         }
     };
+
+    const childrenWithProps = React.Children.map(children, child => {
+        if (React.isValidElement<TicketingLayoutProps>(child)) {
+            return React.cloneElement<TicketingLayoutProps>(child, { currentUser: currentUser ?? data?.currentUser });
+        }
+        return child;
+    });
 
     return (
         <>
@@ -80,9 +95,11 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
                 <Logo>
                     <Link href="/">GitTix</Link>
                 </Logo>
-                <BodyHeader>{data?.currentUser && <Link href="/tickets/new">Tickets</Link>}</BodyHeader>
+                <BodyHeader>
+                    {(currentUser ?? data?.currentUser) && <Link href="/tickets/new">Tickets</Link>}
+                </BodyHeader>
                 <AuthContainer>
-                    {!data?.currentUser ? (
+                    {!(currentUser ?? data?.currentUser) ? (
                         <>
                             <Container>
                                 <Link href="/auth/signup">Sign Up</Link>
@@ -96,7 +113,7 @@ export const TicketingLayout = ({ children }: { children: ReactNode }) => {
                     )}
                 </AuthContainer>
             </Header>
-            {children}
+            {childrenWithProps}
         </>
     );
 };

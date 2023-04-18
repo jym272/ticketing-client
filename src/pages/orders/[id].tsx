@@ -1,79 +1,14 @@
 import { GetServerSideProps } from 'next';
 import { getEnvOrFail } from '@src/utils';
-import { Order as OrderType, OrderStatus } from '@src/types';
-import { TicketingLayout } from '@src/components';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import StripeCheckout from 'react-stripe-checkout';
+import { NewOrderProps, Order as OrderType, OrderStatus } from '@src/types';
+import { NewOrder, TicketingLayout } from '@src/components';
+import React from 'react';
 
-export default function Order({
-    order,
-    initialExpiration,
-    stripePublishableKey
-}: {
-    order: OrderType;
-    initialExpiration: number;
-    stripePublishableKey: string;
-}) {
-    // const initialExpiration = Math.round((new Date(order.expiresAt).getTime() - new Date().getTime()) / 1000);
-
-    const [expiration, setExpiration] = useState<number>(initialExpiration);
-    const router = useRouter();
-    // const [error, setError] = useState<string | null>(null);
-    // const purchaseHandler = async () => {
-    //     const res = await fetch('/api/orders', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({
-    //             ticketId: ticket.id
-    //         })
-    //     });
-    //
-    //     if (res.ok) {
-    //         const { order } = (await res.json()) as { order: Order };
-    //         return router.push(`/orders/${order.id}`);
-    //     }
-    //     const { message } = (await res.json()) as { message: string };
-    //     setError(message);
-    // };
-
-    useEffect(() => {
-        if (expiration <= 0) {
-            void router.push('/');
-        }
-    }, [expiration, router]);
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            setExpiration(prevExpiration => prevExpiration - 1);
-        }, 1000);
-
-        return () => {
-            clearInterval(timerId);
-        };
-    }, [initialExpiration]);
-
+export default function Order(props: NewOrderProps) {
     return (
-        <div>
-            <TicketingLayout>
-                <h1>Order {order.id}</h1>
-                <h4>Ticket: {order.ticket.title}</h4>
-                <h4>Price: {order.ticket.price}</h4>
-                <h4>Status: {order.status}</h4>
-                <h4>Expires in: {expiration} seconds</h4>
-            </TicketingLayout>
-            <StripeCheckout
-                token={token => {
-                    // eslint-disable-next-line no-console
-                    console.log(token);
-                }}
-                stripeKey={stripePublishableKey}
-                amount={order.ticket.price * 100}
-                email={'jym2782@goik.com'}
-            />
-        </div>
+        <TicketingLayout>
+            <NewOrder {...props} />
+        </TicketingLayout>
     );
 }
 

@@ -55,21 +55,16 @@ export interface Credentials {
     password: string;
 }
 
-export interface JwtPayload {
-    [key: string]: any;
-    iss?: string | undefined;
-    sub?: string | undefined;
-    aud?: string | string[] | undefined;
-    exp?: number | undefined;
-    nbf?: number | undefined;
-    iat?: number | undefined;
-    jti?: string | undefined;
-}
-
-export interface JwtPayloadCustom extends JwtPayload {
+export interface JwtPayloadCustom {
     permissions: {
         authenticated: boolean;
     };
+    iat: number;
+    exp: number;
+    aud: string;
+    iss: string;
+    sub: string;
+    jti: string;
 }
 
 export interface Ticket {
@@ -118,4 +113,10 @@ export interface Order {
         title: string;
         price: number;
     };
+}
+
+export interface NewOrderProps {
+    order: Order;
+    initialExpiration: number;
+    stripePublishableKey: string;
 }
