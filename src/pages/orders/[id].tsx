@@ -2,10 +2,21 @@ import { GetServerSideProps } from 'next';
 import { getEnvOrFail } from '@src/utils';
 import { Order as OrderType, OrderStatus } from '@src/types';
 import { TicketingLayout } from '@src/components';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-export default function Order({ order, initialExpiration }: { order: OrderType; initialExpiration: number }) {
+import StripeCheckout from 'react-stripe-checkout';
+
+export default function Order({
+    order,
+    initialExpiration,
+    stripePublishableKey
+}: {
+    order: OrderType;
+    initialExpiration: number;
+    stripePublishableKey: string;
+}) {
     // const initialExpiration = Math.round((new Date(order.expiresAt).getTime() - new Date().getTime()) / 1000);
+
     const [expiration, setExpiration] = useState<number>(initialExpiration);
     const router = useRouter();
     // const [error, setError] = useState<string | null>(null);
@@ -44,7 +55,6 @@ export default function Order({ order, initialExpiration }: { order: OrderType; 
         };
     }, [initialExpiration]);
 
-    // TODO: button to pay
     return (
         <div>
             <TicketingLayout>
@@ -54,6 +64,15 @@ export default function Order({ order, initialExpiration }: { order: OrderType; 
                 <h4>Status: {order.status}</h4>
                 <h4>Expires in: {expiration} seconds</h4>
             </TicketingLayout>
+            <StripeCheckout
+                token={token => {
+                    // eslint-disable-next-line no-console
+                    console.log(token);
+                }}
+                stripeKey={stripePublishableKey}
+                amount={order.ticket.price * 100}
+                email={'jym2782@goik.com'}
+            />
         </div>
     );
 }
@@ -105,7 +124,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
     return {
         props: {
             order,
-            initialExpiration
+            initialExpiration,
+            stripePublishableKey: getEnvOrFail('STRIPE_PUBLISHABLE_KEY')
         }
     };
 };
