@@ -4,8 +4,8 @@ import { Order as OrderType, OrderStatus } from '@src/types';
 import { TicketingLayout } from '@src/components';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-export default function Order({ order }: { order: OrderType }) {
-    const initialExpiration = Math.round((new Date(order.expiresAt).getTime() - new Date().getTime()) / 1000);
+export default function Order({ order, initialExpiration }: { order: OrderType; initialExpiration: number }) {
+    // const initialExpiration = Math.round((new Date(order.expiresAt).getTime() - new Date().getTime()) / 1000);
     const [expiration, setExpiration] = useState<number>(initialExpiration);
     const router = useRouter();
     // const [error, setError] = useState<string | null>(null);
@@ -29,19 +29,22 @@ export default function Order({ order }: { order: OrderType }) {
     // };
 
     useEffect(() => {
+        if (expiration <= 0) {
+            void router.push('/');
+        }
+    }, [expiration, router]);
+
+    useEffect(() => {
         const timerId = setInterval(() => {
             setExpiration(prevExpiration => prevExpiration - 1);
         }, 1000);
 
-        if (initialExpiration <= 0) {
-            void router.push('/');
-        }
-
         return () => {
             clearInterval(timerId);
         };
-    }, [initialExpiration, router]);
+    }, [initialExpiration]);
 
+    // TODO: button to pay
     return (
         <div>
             <TicketingLayout>
@@ -77,6 +80,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         method: 'GET',
         headers
     });
+    // for example, if the user is not logged in, ie: not authenticated and not cookie
     if (!res.ok) {
         return {
             redirect: {
@@ -87,7 +91,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
     }
     const order = (await res.json()) as OrderType;
 
-    if (order.status === OrderStatus.Cancelled) {
+    const initialExpiration = Math.round((new Date(order.expiresAt).getTime() - new Date().getTime()) / 1000);
+
+    if (order.status === OrderStatus.Cancelled || order.status === OrderStatus.Complete || initialExpiration <= 0) {
         return {
             redirect: {
                 destination: '/',
@@ -98,7 +104,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
     return {
         props: {
-            order
+            order,
+            initialExpiration
         }
     };
 };
