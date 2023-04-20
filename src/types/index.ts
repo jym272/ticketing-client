@@ -117,6 +117,8 @@ export interface Order {
         title: string;
         price: number;
     };
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface NewOrderProps {

@@ -1,1 +1,1 @@
-- linf for ticked alone
+- Once the order is pay redirect to Orders List -> in server side the order/id is innaceecble beacsuse the orde is complete

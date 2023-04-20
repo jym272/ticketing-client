@@ -47,6 +47,10 @@ const Container = styled.div`
 
 const BodyHeader = styled.div`
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: space-around;
 `;
 interface TicketingLayoutProps {
     children: ReactNode;
@@ -95,9 +99,12 @@ export const TicketingLayout = ({ children, currentUser }: TicketingLayoutProps)
                 <Logo>
                     <Link href="/">GitTix</Link>
                 </Logo>
-                <BodyHeader>
-                    {(currentUser ?? data?.currentUser) && <Link href="/tickets/new">Tickets</Link>}
-                </BodyHeader>
+                {(currentUser ?? data?.currentUser) && (
+                    <BodyHeader>
+                        <Link href="/tickets/new">Sell Tickets</Link>
+                        <Link href="/orders/">My Orders</Link>
+                    </BodyHeader>
+                )}
                 <AuthContainer>
                     {!(currentUser ?? data?.currentUser) ? (
                         <>

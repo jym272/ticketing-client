@@ -47,3 +47,11 @@ export const getCurrentUser = async ({ req }: { req: NextApiRequest | undefined 
         }
     };
 };
+
+const roundToTwoDecimals = (num: number) => {
+    return Math.round(num * 100) / 100;
+};
+
+export const createAValidPriceCents = (validPrice: number) => {
+    return roundToTwoDecimals(validPrice * 100);
+};
