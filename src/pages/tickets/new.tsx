@@ -4,7 +4,7 @@ import { NewTicketComponent, TicketingLayout } from '@src/components';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { SWRConfig } from 'swr/_internal';
-
+// some silly comment to activate the actions
 export default function NewTicket({ fallback }: { fallback: SWRConfiguration['fallback'] }) {
     const { isAuth, currentUser } = isAuthenticated(fallback);
     const router = useRouter();
