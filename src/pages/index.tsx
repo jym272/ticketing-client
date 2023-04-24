@@ -4,6 +4,7 @@ import type { SWRConfiguration } from 'swr';
 import { SWRConfig } from 'swr/_internal';
 import { getCurrentUser, isAuthenticated } from '@src/utils';
 
+// silly ccomment
 export default function Home({ fallback }: { fallback: SWRConfiguration['fallback'] }) {
     const { currentUser } = isAuthenticated(fallback);
 
