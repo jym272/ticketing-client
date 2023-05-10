@@ -16,7 +16,6 @@ export default function Home({ fallback }: { fallback: SWRConfiguration['fallbac
             </TicketingLayout>
         </SWRConfig>
     );
-
     // const dispatch: AppDispatch = useDispatch();
     //
     // const ingressUrl = `/query-posts`;
