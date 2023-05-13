@@ -1,8 +1,9 @@
 import { GetServerSideProps } from 'next';
-import { getEnvOrFail } from '@src/utils';
 import { NewOrderProps, Order as OrderType, OrderStatus } from '@src/types';
 import { NewOrder, TicketingLayout } from '@src/components';
 import React from 'react';
+import { getEnvOrFail } from '@src/utils';
+import { getSecretOrFail } from '@src/utils/getSecret';
 
 export default function Order(props: NewOrderProps) {
     return (
@@ -60,7 +61,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
         props: {
             order,
             initialExpiration,
-            stripePublishableKey: getEnvOrFail('STRIPE_PUBLISHABLE_KEY')
+            stripePublishableKey: getSecretOrFail('STRIPE_PUBLISHABLE_KEY')
         }
     };
 };
