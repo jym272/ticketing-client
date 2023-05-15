@@ -41,7 +41,7 @@ export const getCurrentUser = async ({ req }: { req: NextApiRequest | undefined 
             headers
         });
     } catch (err) {
-        log(`No response from the server, fetch the current user from ${isServerSideMsg}}`);
+        log(`No response from the server, fetch the current user from ${isServerSideMsg}`);
         return {
             fallback: {
                 '/api/users/current-user': {
@@ -52,7 +52,7 @@ export const getCurrentUser = async ({ req }: { req: NextApiRequest | undefined 
     }
 
     if (!res.ok) {
-        log(`No response from the server, fetch the current user from ${isServerSideMsg}}`);
+        log(`No response from the server, fetch the current user from ${isServerSideMsg}`);
         return {
             fallback: {
                 '/api/users/current-user': {
